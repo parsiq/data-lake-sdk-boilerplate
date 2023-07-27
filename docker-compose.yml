@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  datalake_runner:
+    container_name: datalake_template_container
+    environment:
+      PGHOST: pg
+      PGPORT: 5432
+      PGDATABASE: datalake
+      PGUSER: datalake
+      PGPASSWORD: datalake
+      DLSDK_SHOW_CONFIG: "true"
+      # Set DLSDK_VERBOSE to "false" and DLSDK_NO_DEBUG to "true" for less console output.
+      DLSDK_VERBOSE: "true"
+      DLSDK_NO_DEBUG: "false"
+      #DLSDK_VERBOSE: "false"
+      #DLSDK_NO_DEBUG: "true"
+      DLSDK_POLL_TSUNAMI: "true"
+      DLSDK_NO_RMQ: "true"
+      # DLSDK_RECOVERY_BLOCK_FRAME controls the number of blocks retrieved at once in historical/batch/recovery mode.
+      DLSDK_RECOVERY_BLOCK_FRAME: 200
+      DLSDK_FRAME_LEVEL_ISOLATION: "true"
+      DLSDK_MEMORY_CACHE: "true"
+      DLSDK_RECREC_SLEEP_MS: 100
+      DLSDK_RECREC_ATTEMPTS: 5
+      DLSDK_MODE_MUTEX_DELAY_MS: 10
+      DLSDK_PULL_SLEEP_MS: 100
+      DLSDK_PULL_AWAKEN_MS: 500
+      DLSDK_FORCE_GC: 5
+      DLSDK_LOG_MEMORY_USAGE: 5000
+    depends_on:
+      - pg
+    image: "datalake-template-dev:latest"
+    # Drop the '--reset' CLI option here if you don't want to reset the datalake's state on each run.
+    entrypoint: /bin/bash ./run.sh --reset
+    #entrypoint: /bin/bash ./run.sh
+
+  pg:
+    container_name: postgres_datalake_container
+    image: postgres
+    environment:
+      POSTGRES_DB: datalake
+      POSTGRES_USER: datalake
+      POSTGRES_PASSWORD: datalake
+    ports:
+      - "54329:5432"
+    volumes:
+      - ./volumes/postgres/:/var/lib/postgresql/data
+    stop_grace_period: 1m

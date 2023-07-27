@@ -1,0 +1,8 @@
+node_modules/
+dist/
+sandbox/
+src/**/*.js
+volumes/
+./*.tgz
+./*.tar.gz
+*.swp
